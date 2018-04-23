@@ -45,9 +45,15 @@ class IsAuthenticatedOrLoginNotRequired(BasePermission):
 #
 
 class TagField(RelatedField):
+    """
+    Represent a writable list of Tags associated with an object (use with many=True).
+    """
 
     def to_internal_value(self, data):
-        return Tag(name=data)
+        obj = self.parent.parent.instance
+        content_type = ContentType.objects.get_for_model(obj)
+        tag, _ = Tag.objects.get_or_create(content_type=content_type, object_id=obj.pk, name=data)
+        return tag
 
     def to_representation(self, value):
         return value.name
